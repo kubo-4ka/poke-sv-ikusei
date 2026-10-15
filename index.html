@@ -1,0 +1,676 @@
+<!doctype html>
+<html lang="ja" data-theme="scarlet">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ポケモンSV育成クイズ</title>
+  <meta name="description" content="『ポケットモンスター スカーレット・バイオレット』の種族値・個体値・努力値・せいかく・タイプ相性・ダメージの倍率を、説明とクイズで覚える個人作成の非公式アプリ。">
+  <meta name="theme-color" content="#9c0019">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/apple-touch-icon.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="SV育成クイズ">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&family=M+PLUS+Rounded+1c:wght@700;800&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script>
+    // Apply the saved theme before paint to avoid a flash
+    (function () {
+      var t = 'auto';
+      try { t = localStorage.getItem('pik.theme') || 'auto'; } catch (e) {}
+      if (t === 'auto') t = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches ? 'cassiopeia' : 'scarlet';
+      document.documentElement.dataset.theme = t;
+    })();
+  </script>
+</head>
+<body>
+  <div class="page">
+    <header class="masthead">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32"><path d="M16 3.5 26.8 9.75v12.5L16 28.5 5.2 22.25V9.75z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" opacity=".5"/><path d="M16 7.5 23 12.2 21.6 21.4 16 24.8 10 20.6 9.6 11.8z" fill="currentColor" fill-opacity=".28" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><circle cx="16" cy="16" r="1.6" fill="currentColor"/></svg>
+        </span>
+        <div>
+          <h1>ポケモンSV育成クイズ</h1>
+          <p class="brand-sub">Scarlet · Violet Training Basics</p>
+        </div>
+      </div>
+      <div class="theme-wrap">
+        <button class="icon-btn" id="themeBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="themeMenu" title="テーマ">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.3-1-1.6-1-2.7 0-1 .8-1.6 1.8-1.6H17a4 4 0 0 0 4-4C21 6.5 17 3 12 3z"/><circle cx="7.5" cy="11" r="1.1"/><circle cx="10.5" cy="7.3" r="1.1"/><circle cx="15" cy="7.5" r="1.1"/></svg>
+          <span class="lbl">テーマ</span>
+        </button>
+        <div class="theme-menu" id="themeMenu" role="menu" hidden></div>
+      </div>
+    </header>
+
+    <div class="spoil-bar" id="spoilBar"></div>
+
+    <main>
+      <!-- ===== Learn ===== -->
+      <section class="view prose" id="view-learn" aria-label="まなぶ">
+        <p class="lead">ポケモンの強さを決める数字（種族値・個体値・努力値・せいかく）と、ダメージの倍率・タイプ相性を、ざっくり説明します。厳密な計算はしなくて大丈夫。「どのくらい違うのか」をつかむのが目的です。</p>
+        <nav class="toc" id="learnToc" aria-label="目次"></nav>
+        <div class="row lib-fold"><button class="text-btn" id="learnOpen" type="button">すべて開く</button><button class="text-btn" id="learnClose" type="button">すべて閉じる</button></div>
+
+        <details class="lsec" id="l-three"><summary><h2>強さを決める3つの数字</h2></summary><div class="lsec-body">
+          <p>ポケモンの能力（HP・こうげき・ぼうぎょ・とくこう・とくぼう・すばやさ）は、おもに次の数字で決まります。</p>
+          <div class="trio">
+            <div class="trio-card"><b>種族値</b><span>しゅぞくち</span><p>ポケモンの<strong>種類</strong>ごとに決まった基準。育て方では変わらない。</p><small>例：マスカーニャのすばやさ 123</small></div>
+            <div class="trio-card"><b>個体値</b><span>こたいち</span><p><strong>1匹ずつ</strong>違う生まれつきの値。0〜31。</p><small>おうかんで31相当にできる</small></div>
+            <div class="trio-card"><b>努力値</b><span>どりょくち</span><p>倒した相手やアイテムで<strong>育てて増やす</strong>値。1つ252・合計510まで。</p><small>きのみ・もちで減らせる</small></div>
+            <div class="trio-card"><b>せいかく</b><span>性格</span><p>1つの能力が<strong>1.1倍</strong>、1つが<strong>0.9倍</strong>になる（補正なしもある）。</p><small>ミントで補正を変えられる</small></div>
+          </div>
+          <div class="formula">
+            <p class="formula-head">レベル50のときの、ざっくりした式</p>
+            <p class="formula-body">能力 ≒ <b class="c-base">種族値</b> ＋ <b class="c-iv">個体値 ÷ 2</b> ＋ <b class="c-ev">努力値 ÷ 8</b> ＋ 5 <small>（HPは ＋5 のかわりに ＋60）</small></p>
+            <p class="formula-body">そのあと <b class="c-nat">せいかく</b> で ×1.1 か ×0.9</p>
+            <p class="hint">レベル100なら、だいたいこの2倍（個体値はそのまま、努力値は ÷4）。ゲームの中では小数点以下を切り捨てて計算します。</p>
+          </div>
+          <p>いちばん影響が大きいのは<strong>種族値</strong>です。個体値・努力値・せいかくは、同じ種類の中での「仕上げ」の差だと考えるとわかりやすいです。</p>
+        </div></details>
+
+        <details class="lsec" id="l-calc"><summary><h2>動かしてみる：能力の計算機</h2></summary><div class="lsec-body">
+          <p>ポケモンと能力を選んで、個体値・努力値・せいかくを動かすと、レベル50の能力（実数値）がどう変わるか見られます。</p>
+          <div class="calc" id="calc"></div>
+        </div></details>
+
+        <details class="lsec" id="l-base"><summary><h2>種族値：種類ごとの基準</h2></summary><div class="lsec-body">
+          <p>種族値は種類ごとに決まっていて、同じ種類なら全員同じです。6つの能力の合計（合計種族値）を見ると、そのポケモンの「総合的な強さの目安」になります。</p>
+          <h3>見分けのコツ</h3>
+          <ul class="tips" id="baseTips"></ul>
+          <h3>具体例：パルデアの御三家</h3>
+          <p>ニャオハ・ホゲータ・クワッスの3系統は、<strong>合計はどの段階でもほぼ同じ</strong>なのに、配分がまったく違います。</p>
+          <div id="starterBox"></div>
+          <h3>具体例：イーブイと8つの進化</h3>
+          <p>イーブイの進化系は、<strong>8種とも合計が同じ525</strong>。そのかわり、どの能力が高いかが進化系ごとにはっきり分かれています。</p>
+          <div id="eeveeBox"></div>
+          <h3>データで見る傾向（いまのネタバレ範囲のポケモン）</h3>
+          <div id="trendBox"></div>
+        </div></details>
+
+        <details class="lsec" id="l-rank"><summary><h2>種族値ランキング</h2></summary><div class="lsec-body">
+          <p>能力ごとに、種族値の高いポケモン・低いポケモンを並べました。ネタバレ範囲の中のポケモンだけが出ます。</p>
+          <div class="rank-tools">
+            <div class="seg" id="rankStat"></div>
+            <div class="row"><div class="seg" id="rankDir"></div>
+            <label class="check small"><input type="checkbox" id="rankLeg"> 伝説・幻・パラドックスも入れる</label>
+            <label class="check small"><input type="checkbox" id="rankFinal" checked> 最終進化だけ</label></div>
+          </div>
+          <ol class="ranking" id="rankList"></ol>
+        </div></details>
+
+        <details class="lsec" id="l-iv"><summary><h2>個体値：生まれつきの差（0〜31）</h2></summary><div class="lsec-body">
+          <p>同じ種類でも、1匹ずつ能力に少し差があります。それが個体値で、6つの能力それぞれに 0〜31 の値があります。</p>
+          <div class="numrow">
+            <div class="num"><b>約15</b><span>レベル50で、個体値0と31の差</span></div>
+            <div class="num"><b>31</b><span>レベル100で、個体値0と31の差</span></div>
+          </div>
+          <h3>最高にするには：すごいとっくん</h3>
+          <ul>
+            <li><b>ぎんのおうかん</b>：選んだ<strong>1つ</strong>の能力を、個体値31相当にする</li>
+            <li><b>きんのおうかん</b>：<strong>6つすべて</strong>の能力を、個体値31相当にする</li>
+            <li>フリッジタウンにいる人に、おうかんを渡して「すごいとっくん」をしてもらう。SVでは<strong>レベル50以上</strong>なら使える（前作まではレベル100）</li>
+            <li>ぎんのおうかんはデリバードポーチで買えるようになるほか、テラレイドバトルの報酬などでも手に入る</li>
+            <li>すごいとっくんは「31として扱う」もので、もとの個体値そのものは変わらない（タマゴで子に伝わるのはもとの値）</li>
+          </ul>
+          <h3 data-sp="3">見えるようにするには：ジャッジ</h3>
+          <div data-sp="3">
+            <p>エンディングのあと、ボックスで＋ボタンを押すと、個体値を言葉で確かめられる「ジャッジ」が使えるようになります。</p>
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th>ジャッジの言葉</th><th>個体値</th></tr></thead>
+              <tbody>
+                <tr><td>さいこう</td><td>31</td></tr>
+                <tr><td>すばらしい</td><td>30</td></tr>
+                <tr><td>すごくいい</td><td>26〜29</td></tr>
+                <tr><td>かなりいい</td><td>16〜25</td></tr>
+                <tr><td>まあまあ</td><td>1〜15</td></tr>
+                <tr><td>ダメかも</td><td>0</td></tr>
+              </tbody>
+            </table></div>
+          </div>
+        </div></details>
+
+        <details class="lsec" id="l-ev"><summary><h2>努力値：育てて伸ばす（1つ252・合計510）</h2></summary><div class="lsec-body">
+          <p>ポケモンを倒すと、倒した相手の種類ごとに決まった能力の努力値が入ります。SVでは、ステータス画面の能力のグラフで努力値の入り方も確かめられます。</p>
+          <div class="numrow">
+            <div class="num"><b>約32</b><span>レベル50で、努力値0と252の差</span></div>
+            <div class="num"><b>63</b><span>レベル100で、努力値0と252の差</span></div>
+          </div>
+          <div class="cols">
+            <div>
+              <h3>増やす</h3>
+              <ul>
+                <li>ポケモンを倒す（相手ごとに 1〜3）</li>
+                <li><b>えいようドリンク</b>：1本で <b>＋10</b>（252まで使える）</li>
+                <li><b>ハネ</b>：1枚で <b>＋1</b></li>
+                <li><b>パワー系</b>のもちもの：倒したとき <b>＋8</b></li>
+                <li><b>〜のもち</b>（ゼロの秘宝）：1個で <b>＋10</b></li>
+              </ul>
+            </div>
+            <div>
+              <h3>減らす</h3>
+              <ul>
+                <li><b>きのみ</b>：1個で <b>−10</b>（なつき度も上がる）</li>
+                <li><b>まっさらもち</b>（ゼロの秘宝）：<b>全部0</b>に戻す</li>
+              </ul>
+              <p class="hint">ポケルス（努力値が2倍入るしくみ）はSVではなくなりました。</p>
+            </div>
+          </div>
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>能力</th><th>えいようドリンク（＋10）</th><th>パワー系（＋8）</th><th>減らすきのみ（−10）</th></tr></thead>
+            <tbody>
+              <tr><td>HP</td><td>マックスアップ</td><td>パワーウエイト</td><td>ザロクのみ</td></tr>
+              <tr><td>こうげき</td><td>タウリン</td><td>パワーリスト</td><td>ネコブのみ</td></tr>
+              <tr><td>ぼうぎょ</td><td>ブロムヘキシン</td><td>パワーベルト</td><td>タポルのみ</td></tr>
+              <tr><td>とくこう</td><td>リゾチウム</td><td>パワーレンズ</td><td>ロメのみ</td></tr>
+              <tr><td>とくぼう</td><td>キトサン</td><td>パワーバンド</td><td>ウブのみ</td></tr>
+              <tr><td>すばやさ</td><td>インドメタシン</td><td>パワーアンクル</td><td>マトマのみ</td></tr>
+            </tbody>
+          </table></div>
+          <p class="hint">よくある振り方は「攻撃に使う能力とすばやさに252ずつ、残り4をHP」。レベル50では努力値8で実数値が1上がる（最初だけ4）ので、252は「4＋8×31」でむだのない数です。</p>
+        </div></details>
+
+        <details class="lsec" id="l-nature"><summary><h2>せいかくとミント</h2></summary><div class="lsec-body">
+          <p>せいかくは25種類。20種は1つの能力が<strong>1.1倍</strong>、別の1つが<strong>0.9倍</strong>になり、5種は補正がありません（HPは対象外）。ステータス画面では、上がる能力が赤、下がる能力が青で表示されます。</p>
+          <p><b>ミント</b>を食べさせると、能力の補正だけがそのミントのせいかくと同じになります（せいかくの名前の表示は変わりません）。SVではラッキーズで買えるようになるほか、テラレイドバトルの報酬でも手に入ります。</p>
+          <div class="nat-scroll"><div class="nat-grid" id="natureGrid"></div></div>
+          <p class="hint">よく使われるのは、物理アタッカーなら いじっぱり（こうげき↑とくこう↓）・ようき（すばやさ↑とくこう↓）、特殊アタッカーなら ひかえめ（とくこう↑こうげき↓）・おくびょう（すばやさ↑こうげき↓）。使わない方の攻撃の能力を下げるのが定番です。</p>
+        </div></details>
+
+        <details class="lsec" id="l-dmg"><summary><h2>ダメージの倍率</h2></summary><div class="lsec-body">
+          <p class="link-row"><button class="btn small" type="button" data-goto="dmg">ダメージ計算機で動かしてみる →</button></p>
+          <p>ダメージは、いろいろな倍率の<strong>かけ算</strong>で決まります。たとえば「タイプ一致（1.5倍）でこうかばつぐん（2倍）」なら 1.5 × 2 ＝ <strong>3倍</strong>。足し算ではないのがポイントです。</p>
+          <div id="dmgTable"></div>
+          <h3>ランク（能力変化）</h3>
+          <p>つるぎのまい・いかく・かそく などで能力は段階的に上下します。上がるときと下がるときで割合が違います。</p>
+          <div class="rank-strip" id="rankStrip"></div>
+          <ul>
+            <li><b>いかく</b>：場に出たとき相手のこうげきを1段階下げる → 物理技のダメージが約2/3に</li>
+            <li><b>かそく</b>：毎ターンの終わりにすばやさが1段階上がる → 1.5倍、2倍、2.5倍…</li>
+            <li><b>きゅうしょ</b>は1.5倍で、さらに「自分の下がったこうげき」と「相手の上がったぼうぎょ」を無視する</li>
+          </ul>
+        </div></details>
+
+        <details class="lsec" id="l-stage"><summary><h2>ランク（能力変化）・急所・命中</h2></summary><div class="lsec-body">
+          <p>つるぎのまい・いかく などで変わる「ランク」は、−6〜＋6 の13段階です。こうげき・ぼうぎょ などの能力と、命中・回避では割合が違います。急所にも別のランクがあります。</p>
+          <div class="stage-lab" id="stageLab"></div>
+          <div class="cols">
+            <div>
+              <h3>急所ランク</h3>
+              <div class="tbl-wrap"><table class="tbl">
+                <thead><tr><th>急所ランク</th><th class="n">急所の確率</th></tr></thead>
+                <tbody><tr><td>0（ふつう）</td><td class="n">1/24（約4%）</td></tr><tr><td>＋1</td><td class="n">1/8（12.5%）</td></tr><tr><td>＋2</td><td class="n">1/2（50%）</td></tr><tr><td>＋3 以上</td><td class="n">必ず（100%）</td></tr></tbody>
+              </table></div>
+              <ul>
+                <li>＋1：急所に当たりやすい技（つじぎり・ストーンエッジ など）、ピントレンズ、とくせい「きょううん」</li>
+                <li>＋2：きあいだめ</li>
+                <li>急所は1.5倍。さらに「自分の下がったこうげき」「相手の上がったぼうぎょ」「リフレクター・ひかりのかべ」を無視する</li>
+              </ul>
+            </div>
+            <div>
+              <h3>命中・回避ランク</h3>
+              <div class="tbl-wrap"><table class="tbl">
+                <thead><tr><th>命中 − 回避</th><th class="n">命中率の倍率</th></tr></thead>
+                <tbody><tr><td>＋1 / ＋2 / ＋3</td><td class="n">4/3 / 5/3 / 2倍</td></tr><tr><td>＋6</td><td class="n">3倍</td></tr><tr><td>−1 / −2 / −3</td><td class="n">3/4 / 3/5 / 1/2倍</td></tr><tr><td>−6</td><td class="n">1/3倍</td></tr></tbody>
+              </table></div>
+              <ul>
+                <li>実際の命中率 ＝ 技の命中 × 倍率（命中80の技で、相手の回避＋1なら 80 × 3/4 ＝ 60%）</li>
+                <li>つばめがえし など「必中」の技や、とくせい「ノーガード」はランクに関係なく当たる</li>
+              </ul>
+            </div>
+          </div>
+          <h3>ランクが消えるとき・変わるとき</h3>
+          <ul>
+            <li>ボールに戻す（交代する）と、ランクは元に戻る。バトンタッチなら引き継げる</li>
+            <li>くろいきり（全員を0に）、クリアスモッグ（当てた相手を0に）、ほえる・ふきとばし（相手を交代させる）</li>
+            <li>ひっくりかえす（相手のプラスとマイナスを逆に）、じこあんじ（相手のランクをコピー）</li>
+            <li>とくせい「てんねん」は相手のランクを無視して戦う</li>
+          </ul>
+        </div></details>
+
+        <details class="lsec" id="l-type"><summary><h2>タイプ相性</h2></summary><div class="lsec-body">
+          <p>技のタイプと相手のタイプで、ダメージが <b>0倍・1/4倍・1/2倍・1倍・2倍・4倍</b> のどれかになります。相手が2つのタイプを持つときは、それぞれの相性を<strong>かけ算</strong>します（例：くさ・ほのお に みず技 → 1/2 × 2 ＝ 1倍）。</p>
+          <dl class="eff-words">
+            <div><dt class="e-4">こうかは ばつぐんだ！</dt><dd>2倍・4倍</dd></div>
+            <div><dt class="e-1">（とくに表示なし）</dt><dd>1倍</dd></div>
+            <div><dt class="e-h">こうかは いまひとつの ようだ</dt><dd>1/2倍・1/4倍</dd></div>
+            <div><dt class="e-0">こうかが ないようだ…</dt><dd>0倍</dd></div>
+          </dl>
+          <div class="worked">
+            <p class="worked-head">例：くさ・ほのお のポケモン（スコヴィラン）に、みずタイプの技（なみのり）を当てると？</p>
+            <ol class="worked-steps">
+              <li><b>技のタイプを確かめる</b>：なみのり は <span class="type t-water">みず</span></li>
+              <li><b>相手のタイプを1つずつ見る</b>
+                <ul>
+                  <li><span class="type t-water">みず</span> → <span class="type t-grass">くさ</span>：<b>1/2倍</b>（いまひとつ。草は水を吸ってしまう）</li>
+                  <li><span class="type t-water">みず</span> → <span class="type t-fire">ほのお</span>：<b>2倍</b>（ばつぐん。水は火を消す）</li>
+                </ul>
+              </li>
+              <li><b>かけ算する</b>：1/2 × 2 ＝ <b>1倍</b>（ふつう）。足し算（1/2＋2）ではない</li>
+              <li><b>ゲームの表示</b>：1倍なので「こうかは ばつぐんだ！」も「いまひとつの ようだ」も出ない</li>
+            </ol>
+            <p class="hint">ポイント：ばつぐん（2倍）といまひとつ（1/2倍）が1つずつなら打ち消しあって1倍。ばつぐんが2つなら 2×2＝4倍、いまひとつが2つなら 1/2×1/2＝1/4倍。どちらかが「こうかなし（0倍）」なら、もう片方が何でも0倍。</p>
+            <div class="tbl-wrap"><table class="tbl">
+              <thead><tr><th>例</th><th>計算</th><th class="n">結果</th></tr></thead>
+              <tbody>
+                <tr><td>いわ技 → ウルガモス（むし・ほのお）</td><td>2 × 2</td><td class="n"><b>4倍</b></td></tr>
+                <tr><td>ほのお技 → カジリガメ（みず・いわ）</td><td>1/2 × 1/2</td><td class="n"><b>1/4倍</b></td></tr>
+                <tr><td>でんき技 → ドオー（どく・じめん）</td><td>1 × 0</td><td class="n"><b>0倍</b></td></tr>
+                <tr><td>ひこう技 → スコヴィラン（くさ・ほのお）</td><td>2 × 1</td><td class="n"><b>2倍</b></td></tr>
+              </tbody>
+            </table></div>
+          </div>
+          <h3>タイプ相性表</h3>
+          <p class="hint" style="margin-top:0">横の行が技のタイプ、縦の列が相手のタイプ。セルを押すと、その組み合わせの覚え方が出ます。</p>
+          <div class="tchart-wrap" id="typeChart"></div>
+          <p class="hint" id="typeMemo" aria-live="polite"></p>
+          <h3>しらべる：このタイプの弱点は？（技のタイプを選ぶと、計算の内訳も出ます）</h3>
+          <div class="def-calc" id="defCalc"></div>
+        </div></details>
+
+        <details class="lsec" id="l-category"><summary><h2>技の分類：変化技・物理技・特殊技</h2></summary><div class="lsec-body">
+          <p>技は、まず<b>ダメージを与えない「変化技」</b>と、<b>ダメージを与える「攻撃技」</b>に分かれます。攻撃技はさらに<b>「物理技」</b>と<b>「特殊技」</b>に分かれ、どちらかでダメージの計算に使う能力が変わります。技の説明画面の「分類」のマークで確かめられます。</p>
+          <div class="trio cat3">
+            <div class="trio-card"><b>物理技</b><span>ぶつりわざ</span><p>自分の<strong>こうげき</strong>で、相手の<strong>ぼうぎょ</strong>に当てる。</p><small>例：フレアドライブ・じしん・インファイト</small></div>
+            <div class="trio-card"><b>特殊技</b><span>とくしゅわざ</span><p>自分の<strong>とくこう</strong>で、相手の<strong>とくぼう</strong>に当てる。</p><small>例：かえんほうしゃ・10まんボルト・ムーンフォース</small></div>
+            <div class="trio-card"><b>変化技</b><span>へんかわざ</span><p>ダメージを与えない。能力を上げる・状態異常にする・場を変える など。</p><small>例：つるぎのまい・でんじは・まもる</small></div>
+          </div>
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>分類</th><th>使う自分の能力</th><th>相手の能力</th><th>影響を受けるもの</th></tr></thead>
+            <tbody>
+              <tr><td class="nm">物理技</td><td>こうげき</td><td>ぼうぎょ</td><td>やけど（半分）・いかく・リフレクター・こだわりハチマキ</td></tr>
+              <tr><td class="nm">特殊技</td><td>とくこう</td><td>とくぼう</td><td>ひかりのかべ・とつげきチョッキ・こだわりメガネ</td></tr>
+              <tr><td class="nm">変化技</td><td colspan="2">（ダメージなし）</td><td>ちょうはつで出せなくなる・とつげきチョッキを持つと出せない</td></tr>
+            </tbody>
+          </table></div>
+          <h3>タイプではなく、技ごとに決まる</h3>
+          <p>「ほのおタイプだから特殊」のようには決まっていません。<b>同じタイプの中に物理技も特殊技もあります</b>（第4世代から）。</p>
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>タイプ</th><th>物理技の例</th><th>特殊技の例</th></tr></thead>
+            <tbody>
+              <tr><td><span class="type t-fire">ほのお</span></td><td>フレアドライブ（120）・ほのおのパンチ（75）</td><td>かえんほうしゃ（90）・ふんえん（80）</td></tr>
+              <tr><td><span class="type t-water">みず</span></td><td>アクアブレイク（85）・アクアテール（90）</td><td>なみのり（90）・ハイドロポンプ（110）</td></tr>
+              <tr><td><span class="type t-electric">でんき</span></td><td>ワイルドボルト（90）</td><td>10まんボルト（90）</td></tr>
+              <tr><td><span class="type t-ground">じめん</span></td><td>じしん（100）</td><td>だいちのちから（90）</td></tr>
+              <tr><td><span class="type t-fighting">かくとう</span></td><td>インファイト（120）</td><td>はどうだん（80）</td></tr>
+              <tr><td><span class="type t-fairy">フェアリー</span></td><td>じゃれつく（90）</td><td>ムーンフォース（95）</td></tr>
+            </tbody>
+          </table></div>
+          <div class="worked">
+            <p class="worked-head">例：ほのおタイプの物理アタッカー（ブースター：こうげき130・とくこう95）なら、フレアドライブとふんえんのどっち？</p>
+            <ol class="worked-steps">
+              <li><b>分類を確かめる</b>：フレアドライブは<b>物理</b>（威力120）、ふんえんは<b>特殊</b>（威力80）</li>
+              <li><b>使う能力をくらべる</b>：物理はこうげき130、特殊はとくこう95</li>
+              <li><b>ざっくり「威力 × 使う能力」でくらべる</b>：フレアドライブ 120 × 130 ＝ 15600、ふんえん 80 × 95 ＝ 7600 → フレアドライブが約2倍</li>
+              <li><b>答え</b>：<b>フレアドライブ</b>。タイプが同じでも、こうげきが高いポケモンは物理技を選ぶ（反動があることは別に考える）</li>
+            </ol>
+            <p class="hint">せいかくも同じ考え方。物理アタッカーなら、使わないとくこうを下げる いじっぱり・ようき が合う（「せいかくとミント」の章）。</p>
+          </div>
+          <h3>しらべる：このタイプの物理技・特殊技</h3>
+          <div class="type-btns" id="catTypes" style="padding:0"></div>
+          <div id="catMoves"></div>
+          <h3>計算のしかたが変わった技</h3>
+          <div class="kcards">
+            <div class="kcard"><b>サイコショック</b><span class="type t-psychic">エスパー</span><p>特殊技なのに、相手の<strong>ぼうぎょ</strong>に当てて計算する。とくぼうが高い相手に強い。</p></div>
+            <div class="kcard"><b>ボディプレス</b><span class="type t-fighting">かくとう</span><p>物理技だが、こうげきではなく自分の<strong>ぼうぎょ</strong>で計算する。てっぺきと相性がよい。</p></div>
+            <div class="kcard"><b>イカサマ</b><span class="type t-dark">あく</span><p>物理技だが、<strong>相手のこうげき</strong>で計算する。こうげきが高い相手ほど痛い。</p></div>
+            <div class="kcard"><b>テラバースト</b><span class="type t-normal">ノーマル</span><p>ふだんは特殊技。テラスタル中は、こうげきのほうが高ければ<strong>物理技</strong>になる。</p></div>
+          </div>
+          <p class="hint">ほかに、物理技の多くは相手に「触れる技」（接触技）で、ゴツゴツメット・さめはだ の反撃を受ける。特殊技の多くは触れない。</p>
+          <h3>特例：威力でダメージが決まらない技</h3>
+          <p>技の分類（物理・特殊）は決まっていても、ダメージが「こうげき・とくこう × 威力」で決まらない技があります。たとえば<b>ナイトヘッド</b>は特殊技ですが、自分のレベルと同じダメージ（レベル50なら50）を与える固定ダメージの技で、とくこうの高さは関係ありません。</p>
+          <div id="catSpecial"></div>
+          <p class="hint">テラレイドのボスには、HPを割合で削る技（いかりのまえば・カタストロフィ）や一撃必殺の技は思ったように効きません（「テラレイドバトル」の章）。</p>
+        </div></details>
+
+        <details class="lsec" id="l-special"><summary><h2>特殊な相性・ルールの技</h2></summary><div class="lsec-body">
+          <p>ふつうのタイプ相性とは違う計算をする技があります。クイズの「特殊な技」で練習できます。</p>
+          <div id="specialList"></div>
+          <h3>タイプのない攻撃：わるあがき・こんらんの自傷</h3>
+          <div class="kcards">
+            <div class="kcard"><b>わるあがき</b><small>タイプなし・物理・威力50</small><p>すべての技のPPがなくなると、かわりに出る。タイプがないので<strong>どのタイプにも1倍</strong>（ゴーストにも当たる）。使うたびに最大HPの1/4の反動を受ける。</p></div>
+            <div class="kcard"><b>こんらんの自傷</b><small>「わけもわからず じぶんを こうげきした！」</small><p>こんらん中は1/3の確率で、技のかわりに自分を攻撃する。<strong>タイプなし・威力40の物理攻撃</strong>を、自分のこうげきで自分のぼうぎょに当てる計算（ランクも反映。急所・タイプ一致なし）。2〜5ターンで治る。</p></div>
+            <div class="kcard"><b>いばる → 自傷が痛い理由</b><p>いばるは相手に「こうげき＋2」と「こんらん」をセットで与える。自傷は自分のこうげきで計算するので、<strong>2倍になったこうげきで自分を殴る</strong>ことになり、ふつうの自傷の約2倍痛い。とくこうを上げる「おだてる」は、物理の自傷には関係しないので痛くならない。</p></div>
+          </div>
+          <h3>状態異常にならないタイプ</h3>
+          <div id="statusList"></div>
+          <h3>テラスタル</h3>
+          <ul>
+            <li>受けるときのタイプは<strong>テラスタイプ1つだけ</strong>になる（元のタイプの弱点は消える）</li>
+            <li>元と同じタイプでテラスタルすると、タイプ一致が<strong>2倍</strong>になる</li>
+            <li>違うタイプでテラスタルすると、テラスタイプの技も1.5倍で使える（元のタイプの技も1.5倍のまま）</li>
+          </ul>
+        </div></details>
+
+        <details class="lsec" id="l-chip"><summary><h2>割合ダメージ：ステルスロック・やけど・ゴツゴツメット</h2></summary><div class="lsec-body">
+          <p>ふつうの技のダメージは、こうげき・ぼうぎょ・威力で決まります。一方で<b>「最大HPの◯分の1」</b>と割合で決まるダメージもあります。相手の耐久に関係なく削れるので、対戦ではとても大事です。</p>
+          <h3>ステルスロック：いわタイプの相性で割合が変わる</h3>
+          <div id="srGrid"></div>
+          <h3>割合ダメージ・割合回復の一覧</h3>
+          <div id="chipList"></div>
+          <ul class="tips" id="chipNotes"></ul>
+        </div></details>
+
+        <details class="lsec" id="l-status"><summary><h2>対戦でよく使う変化技</h2></summary><div class="lsec-body">
+          <p>ダメージを与えない「変化技」も、対戦では勝ち負けを大きく左右します。</p>
+          <div id="battleMoveList"></div>
+        </div></details>
+
+        <details class="lsec" id="l-swap"><summary><h2>入れ替え・コピーの技（トリック・スキルスワップ など）</h2></summary><div class="lsec-body">
+          <p>「何を」入れ替えるのか（もちもの・とくせい・ランク・能力の数値）で整理すると覚えやすいです。ランク（能力変化）と、能力の数値（実数値）は別のものなので注意。</p>
+          <div id="swapList"></div>
+        </div></details>
+
+        <details class="lsec" id="l-ability"><summary><h2>とくせい：ふつうの特性と隠れ特性</h2></summary><div class="lsec-body">
+          <p>ポケモンのとくせいは、種類ごとに<b>ふつうのとくせい（1〜2種類）</b>と<b>隠れ特性（1種類）</b>が決まっていて、1匹はそのうち1つを持っています。対戦でよく使われるとくせいが隠れ特性のこともあります（例：ニンフィアの「フェアリースキン」は隠れ特性。ふつうのとくせいは「メロメロボディ」）。このアプリでは、隠れ特性に「（隠れ特性）」と書いています。</p>
+          <div class="tbl-wrap"><table class="tbl">
+            <thead><tr><th>やりたいこと</th><th>方法</th></tr></thead>
+            <tbody>
+              <tr><td>隠れ特性のポケモンを手に入れる</td><td>★3以上のテラレイドバトルで、隠れ特性のポケモンが出ることがある。隠れ特性の親からタマゴを作ると、子に伝わることがある（メタモンと預けてもよい）</td></tr>
+              <tr><td>ふつうのとくせい → 隠れ特性</td><td><b>とくせいパッチ</b>を使う（★6テラレイドでまれに手に入る）</td></tr>
+              <tr><td>ふつうのとくせい2つを入れ替える</td><td><b>とくせいカプセル</b>を使う（隠れ特性にはならない）</td></tr>
+              <tr><td>とくせいを確かめる</td><td>ボックス・ステータス画面。このアプリの「種族値」タブでも、どれが隠れ特性か分かる</td></tr>
+            </tbody>
+          </table></div>
+          <h3>種族値だけでは分からない：特別なとくせい</h3>
+          <div id="specialAbilities"></div>
+          <h3>タイプ相性を変えるとくせい</h3>
+          <p>とくせいによっては、タイプ相性そのものが変わります。対戦ではとくにここが大事です。</p>
+          <div id="abilityList"></div>
+        </div></details>
+
+        <details class="lsec" id="l-item"><summary><h2>対戦でよく見るもちもの</h2></summary><div class="lsec-body">
+          <div id="itemList"></div>
+        </div></details>
+
+        <details class="lsec" id="l-train"><summary><h2>育成の例：対戦でよく見るポケモン</h2></summary><div class="lsec-body">
+          <p>種族値・とくせい・技・もちものから、「なぜこう育てるのか」を考えた例です。あくまで一例で、レギュレーションや流行、パーティの組み方で答えは変わります。</p>
+          <div id="trainList"></div>
+        </div></details>
+
+        <details class="lsec" id="l-double"><summary><h2>ダブルバトル：視点が変わる技とルール</h2></summary><div class="lsec-body">
+          <p>2対2で戦うダブルバトルでは、シングルでは意味がない技（デコレーション・てだすけ）や、味方にも当たる技など、考え方が大きく変わります。ブルーベリー学園のリーグ戦もダブルバトルです。</p>
+          <div id="doubleNotes"></div>
+          <h3>技の範囲の一覧（覚えるポケモンが多い順）</h3>
+          <div id="doubleMoves"></div>
+        </div></details>
+
+        <details class="lsec" id="l-raid"><summary><h2>テラレイドバトル：ふつうのバトルと違うところ</h2></summary><div class="lsec-body">
+          <p>「HPがやたら多い」「いやなおとが効かない」「いきなり何回も動く」「バリアで固い」──テラレイドは、ふつうのバトルと別のルールで動いています。数値は解析・攻略情報をもとにした目安で、イベントによって違います。</p>
+          <div id="raidHp"></div>
+          <div id="raidCalc"></div>
+          <div id="raidNotes"></div>
+        </div></details>
+
+        <details class="lsec" id="l-rule"><summary><h2>通信対戦のルール：使えないポケモンがある</h2></summary><div class="lsec-body">
+          <div id="ruleNotes"></div>
+        </div></details>
+      </section>
+
+      <!-- ===== Quiz ===== -->
+      <section class="view" id="view-quiz" aria-label="クイズ">
+        <div id="quizSetup" class="stack">
+          <div class="today" id="todayBox"></div>
+          <div id="stepBox"></div>
+          <div class="level-box">
+            <p class="field"><span>難しさ</span></p>
+            <div class="seg" id="levelSeg" role="radiogroup" aria-label="難しさ"></div>
+            <p class="hint" id="levelHint"></p>
+          </div>
+          <div class="modes" id="modeList"></div>
+
+          <details class="settings" id="settingsBox">
+            <summary><span>出題の設定</span><span class="summary-line" id="settingsSummary"></span></summary>
+            <div class="settings-body">
+              <div class="settings-grid">
+                <label class="field">
+                  <span>問題数</span>
+                  <select id="optCount">
+                    <option value="5">5 問</option>
+                    <option value="10">10 問</option>
+                    <option value="20">20 問</option>
+                    <option value="30">30 問</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>1日の目標</span>
+                  <select id="optGoal">
+                    <option value="10">10 問</option>
+                    <option value="20">20 問</option>
+                    <option value="30">30 問</option>
+                    <option value="50">50 問</option>
+                  </select>
+                </label>
+              </div>
+              <label class="check"><input type="checkbox" id="optWeak"> 間違えた問題（分野）を多めに出す</label>
+              <label class="check"><input type="checkbox" id="optAuto"> 正解したら自動で次の問題へ</label>
+            </div>
+          </details>
+        </div>
+
+        <div id="quizPlay" hidden>
+          <div class="quiz-top">
+            <button class="text-btn" id="quitBtn" type="button">&larr; やめる</button>
+            <span class="score-label" id="scoreLabel"></span>
+            <span class="progress-label" id="progressLabel"></span>
+          </div>
+          <div class="progress" aria-hidden="true"><span id="progressBar"></span></div>
+          <p class="prompt" id="prompt"></p>
+          <div class="q-card" id="qCard"></div>
+          <div class="choices" id="choices"></div>
+          <div class="explain" id="explain" aria-live="polite"></div>
+          <div class="quiz-actions">
+            <button class="btn" id="nextBtn" type="button" hidden>次へ</button>
+          </div>
+        </div>
+
+        <div id="quizResult" class="result" hidden>
+          <p class="prompt" id="resultMode"></p>
+          <p class="result-score"><span id="resultScore">0</span><small id="resultTotal"></small></p>
+          <p class="result-title" id="resultTitle"></p>
+          <div class="row" style="justify-content:center">
+            <button class="btn" id="againBtn" type="button">もう一度</button>
+            <button class="btn ghost" id="backBtn" type="button">形式を選ぶ</button>
+          </div>
+          <div class="review" id="review"></div>
+        </div>
+      </section>
+
+      <!-- ===== Damage ===== -->
+      <section class="view" id="view-dmg" aria-label="ダメージ計算">
+        <p class="lead">こうげき・威力・ランク・相性などを動かして、ダメージが<b>だいたいいくつ</b>になり、相手のHPを<b>何%</b>削れるかを計算します（レベル50）。式はゲームと同じ流れですが、とくせいや細かい補正は省いているので目安です。</p>
+        <div class="presets" id="dmgPresets"></div>
+
+        <div class="dmg-grid">
+          <div class="panel dmg-panel">
+            <h3>攻める側</h3>
+            <div class="dmg-row"><label for="dAtkMon">ポケモン</label><select id="dAtkMon"></select></div>
+            <div class="dmg-row"><label>技の分類</label><div class="seg" id="dCat"></div></div>
+            <div class="dmg-row" id="dAtkFill"></div>
+            <div class="dmg-row"><label for="dAtk"><span id="dAtkLabel">こうげき</span>の実数値</label><input type="number" id="dAtk" min="1" max="999" inputmode="numeric"></div>
+            <div class="dmg-row"><label for="dRank">ランク <output id="dRankOut"></output></label><input type="range" id="dRank" min="-6" max="6" step="1"></div>
+            <div class="dmg-row"><label>タイプ一致</label><div class="seg" id="dStab"></div></div>
+            <div class="dmg-row"><label for="dItem">もちもの</label><select id="dItem"></select></div>
+            <div class="dmg-row"><label class="check small"><input type="checkbox" id="dBurn"> やけどしている（物理技が半分）</label></div>
+          </div>
+
+          <div class="panel dmg-panel">
+            <h3>技と場</h3>
+            <div class="dmg-row"><label for="dPow">威力</label><input type="number" id="dPow" min="1" max="250" inputmode="numeric"></div>
+            <div class="chips" id="dPowChips"></div>
+            <div class="dmg-row"><label>タイプ相性</label><div class="seg" id="dEff"></div></div>
+            <div class="dmg-row"><label>天気</label><div class="seg" id="dWeather"></div></div>
+            <div class="dmg-row"><label class="check small"><input type="checkbox" id="dCrit"> きゅうしょに当たる（1.5倍）</label></div>
+          </div>
+
+          <div class="panel dmg-panel">
+            <h3>受ける側</h3>
+            <div class="dmg-row"><label for="dDefMon">ポケモン</label><select id="dDefMon"></select></div>
+            <div class="dmg-row" id="dDefFill"></div>
+            <div class="dmg-row"><label for="dHp">HPの実数値</label><input type="number" id="dHp" min="1" max="999" inputmode="numeric"></div>
+            <div class="dmg-row"><label for="dDef"><span id="dDefLabel">ぼうぎょ</span>の実数値</label><input type="number" id="dDef" min="1" max="999" inputmode="numeric"></div>
+            <div class="dmg-row"><label for="dDRank">ランク <output id="dDRankOut"></output></label><input type="range" id="dDRank" min="-6" max="6" step="1"></div>
+            <div class="dmg-row"><label for="dDItem">もちもの</label><select id="dDItem"></select></div>
+            <div class="dmg-row"><label class="check small"><input type="checkbox" id="dWall"> <span id="dWallLabel">リフレクター</span>がある（半分）</label></div>
+          </div>
+        </div>
+
+        <div class="dmg-out" id="dmgOut" aria-live="polite"></div>
+        <h2 class="sub-head">計算の流れ</h2>
+        <div class="panel" id="dmgSteps"></div>
+        <h2 class="sub-head">くらべてみる</h2>
+        <div class="panel" id="dmgCompare"></div>
+      </section>
+
+      <!-- ===== Dex ===== -->
+      <section class="view" id="view-dex" aria-label="種族値ずかん">
+        <div class="lib-tools">
+          <input type="search" id="dexSearch" placeholder="名前で検索（ひらがな・カタカナ・英語・図鑑番号）" aria-label="ポケモンを検索">
+          <details class="type-filter" id="dexTypeBox">
+            <summary>タイプで絞り込む<span class="sel" id="dexTypeSel"></span></summary>
+            <div class="type-btns" id="dexTypes"></div>
+            <p class="hint">2つまで選べます。<button class="text-btn" id="dexTypeClear" type="button">選択を解除</button></p>
+          </details>
+          <div class="row">
+            <select id="dexSort" aria-label="並び順">
+              <option value="p">パルデア図鑑順</option>
+              <option value="t">合計の高い順</option>
+              <option value="0">HPの高い順</option>
+              <option value="1">こうげきの高い順</option>
+              <option value="2">ぼうぎょの高い順</option>
+              <option value="3">とくこうの高い順</option>
+              <option value="4">とくぼうの高い順</option>
+              <option value="5">すばやさの高い順</option>
+            </select>
+            <label class="check small"><input type="checkbox" id="dexFinal"> 最終進化だけ</label>
+          </div>
+        </div>
+        <p class="hint" id="dexCount"></p>
+        <div id="dexList"></div>
+        <button class="btn ghost small more-btn" id="dexMore" type="button" hidden>もっと見る</button>
+      </section>
+
+      <!-- ===== Record ===== -->
+      <section class="view" id="view-record" aria-label="記録">
+        <div class="tiles" id="recTiles"></div>
+        <h2 class="sub-head">この2週間</h2>
+        <div class="bars" id="recBars"></div>
+        <h2 class="sub-head">分野ごとの正答率</h2>
+        <div class="heat" id="recHeat"></div>
+        <h2 class="sub-head">苦手なところ</h2>
+        <div id="recWeak"></div>
+      </section>
+
+      <!-- ===== Settings ===== -->
+      <section class="view" id="view-settings" aria-label="設定">
+        <h2 class="sub-head" style="margin-top:0">ネタバレ対策</h2>
+        <div class="panel" id="spoilPanel">
+          <h3>ストーリーの進み具合</h3>
+          <p class="hint" style="margin-top:0">選んだところまでに出会うポケモン・情報だけが、ずかん・クイズ（選択肢を含む）・説明の例に出てきます。追加コンテンツは本編のクリア後に遊ぶ前提で、順番に並べています。</p>
+          <div class="checks" id="spoilRadios" style="margin-top:10px"></div>
+        </div>
+        <h2 class="sub-head">テーマ</h2>
+        <div class="panel"><div class="chips" id="themeChips"></div></div>
+        <h2 class="sub-head">データ</h2>
+        <div class="panel">
+          <p style="margin:0 0 10px">正答率と設定は、この端末のブラウザの中だけに保存されます。外部へ送信することはありません。</p>
+          <div class="row">
+            <button class="btn ghost small" id="resetStats" type="button">記録をすべて消す</button>
+            <button class="btn ghost small" id="showGate" type="button">最初の注意書きをもう一度見る</button>
+          </div>
+        </div>
+
+        <div class="prose about">
+          <h2>このアプリについて</h2>
+          <p>『ポケットモンスター スカーレット・バイオレット』では、おうかんでの個体値の強化、ミントでの性格補正の変更、きのみやもちでの努力値のリセットが手軽にでき、エンディング後には個体値をジャッジで確かめられます。それなのに、種族値・個体値・努力値のしくみはゲームの中ではあまり説明されません。このアプリは、そのしくみを<strong>ざっくりした数字</strong>でつかみ、クイズで定着させるためのものです。</p>
+          <div class="notice">
+            <b>個人が作成した非公式のファンアプリです</b>
+            <p>任天堂・株式会社ポケモン・ゲームフリーク・クリーチャーズ、その他の権利者様とは一切関係ありません。ポケモンの名前の権利は各権利者に帰属します。</p>
+          </div>
+          <div class="notice">
+            <b>数字は「ざっくり」です</b>
+            <p>ゲームの中のダメージ計算は、途中で何度も小数点以下を切り捨てたり、4096分率で計算したりしています。このアプリの倍率は、理解のための目安です。</p>
+          </div>
+
+          <h3>クイズの難しさ</h3>
+          <dl class="defs">
+            <dt>やさしい</dt><dd>差がはっきりした比較。タイプ相性は「こうかばつぐん」「いまひとつ」などの言葉で答えます。</dd>
+            <dt>ふつう</dt><dd>タイプ相性は 0〜4倍 の倍率で答えます。種族値の比較は差が小さめに。</dd>
+            <dt>むずかしい</dt><dd>タイプを隠して、技の名前とポケモンの名前だけで答えます。とくせい・もちものの問題では、対戦でよく見るとくせいを名前を伏せて考えます。</dd>
+          </dl>
+
+          <h3>アプリとして使う</h3>
+          <p>ホーム画面に追加すると、アプリのように全画面で使えます。https:// で公開されたページから追加した場合は、一度開いたあとオフラインでも動きます。</p>
+          <button class="btn small" id="installBtn" type="button" hidden>アプリとしてインストール</button>
+
+          <h3>参考にした情報</h3>
+          <ul class="sources">
+            <li><a href="https://wiki.pokemonwiki.com/" target="_blank" rel="noopener">ポケモンWiki</a>：努力値・すごいとっくん・ミントなどのしくみ</li>
+            <li><a href="https://bulbapedia.bulbagarden.net/" target="_blank" rel="noopener">Bulbapedia</a>（英語のポケモン百科事典）：ダメージの倍率・とくせい・もちものの照らし合わせ</li>
+            <li><a href="https://pokeapi.co/" target="_blank" rel="noopener">PokéAPI</a>：種族値・タイプ・とくせい・技のタイプと威力</li>
+            <li><a href="https://zukan.pokemon.co.jp/" target="_blank" rel="noopener">ポケモンずかん（公式）</a>：名前の確認</li>
+          </ul>
+          <p>収録しているのは、パルデア図鑑の400種・本編で手に入る図鑑外の2種と、追加コンテンツ「ゼロの秘宝」のキタカミ図鑑・ブルーベリー図鑑のポケモン（合わせて665種）、それらがSVで覚えられる技です。</p>
+        </div>
+      </section>
+    </main>
+
+    <p class="foot-mini">個人作成の非公式ファンアプリです。権利者様とは関係ありません。数値は目安です。</p>
+  </div>
+
+  <nav class="bottom-nav" aria-label="メニュー">
+    <button class="nav-item" data-view="learn" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5c2.5-1.3 5.2-1.3 8 .5 2.8-1.8 5.5-1.8 8-.5V19c-2.5-1.3-5.2-1.3-8 .5-2.8-1.8-5.5-1.8-8-.5z"/><path d="M12 7v12.5"/></svg>
+      <span>まなぶ</span>
+    </button>
+    <button class="nav-item" data-view="quiz" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.6a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.5v.4M12 16.6v.2"/></svg>
+      <span>クイズ</span>
+    </button>
+    <button class="nav-item" data-view="dmg" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2.5"/><path d="M8.5 7.5h7M8.5 11.5h1.5M14 11.5h1.5M8.5 15.5h1.5M14 15.5h1.5"/></svg>
+      <span>ダメ計</span>
+    </button>
+    <button class="nav-item" data-view="dex" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V13M9.7 19V6M14.3 19v-9M19 19v-5"/></svg>
+      <span>種族値</span>
+    </button>
+    <button class="nav-item" data-view="record" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5a8.5 8.5 0 1 0 8.5 8.5"/><path d="M12 7v5l3.5 2"/><path d="M17 3.5l3.5.5-.5 3.5"/></svg>
+      <span>記録</span>
+    </button>
+    <button class="nav-item" data-view="settings" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/></svg>
+      <span>設定</span>
+    </button>
+  </nav>
+
+  <dialog class="gate" id="gate" aria-labelledby="gateTitle">
+    <form method="dialog" class="gate-body" id="gateForm">
+      <h2 id="gateTitle">はじめに</h2>
+      <div class="notice">
+        <b>個人作成の非公式ファンアプリです</b>
+        <p>任天堂・株式会社ポケモン・ゲームフリーク・クリーチャーズ等とは関係ありません。数値は理解のための目安です。</p>
+      </div>
+      <div class="notice spoil">
+        <b>ネタバレ注意</b>
+        <p>伝説・パラドックスポケモンや、追加コンテンツ「ゼロの秘宝」（碧の仮面・藍の円盤・番外編）のポケモンも収録しています。いまどこまで進んでいるかを選んでください（あとから「設定」で変えられます）。追加コンテンツは本編のクリア後に遊ぶ前提で、順番に並べています。</p>
+      </div>
+      <div class="checks" id="gateRadios"></div>
+      <div class="gate-actions">
+        <button class="btn" value="ok" type="submit">はじめる</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="data-stats.js"></script>
+  <script src="data-moves.js"></script>
+  <script src="data-rules.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

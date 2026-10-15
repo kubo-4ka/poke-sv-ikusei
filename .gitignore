@@ -1,0 +1,7 @@
+# ローカル確認用の自己署名証明書（秘密鍵を含むので公開しない）
+tools/certs/
+# PokéAPI から取ってきた JSON（tools/fetch-*.js が作る）
+tools/.cache/
+node_modules/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,17 @@
+{
+  "name": "ポケモンSV育成クイズ",
+  "short_name": "SV育成クイズ",
+  "description": "スカーレット・バイオレットの種族値・個体値・努力値・タイプ相性を説明とクイズで覚える、個人作成の非公式アプリ",
+  "lang": "ja",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2c9c4",
+  "theme_color": "#9c0019",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
